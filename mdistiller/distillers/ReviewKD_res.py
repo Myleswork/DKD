@@ -28,9 +28,9 @@ def hcl_loss(fstudent, fteacher):
     return loss_all
 
 
-class ReviewKD(Distiller):
+class ReviewKD_v1(Distiller):
     def __init__(self, student, teacher, cfg):
-        super(ReviewKD, self).__init__(student, teacher)
+        super(ReviewKD_v1, self).__init__(student, teacher)
         self.shapes = cfg.REVIEWKD.SHAPES
         self.out_shapes = cfg.REVIEWKD.OUT_SHAPES
         in_channels = cfg.REVIEWKD.IN_CHANNELS
@@ -45,7 +45,7 @@ class ReviewKD(Distiller):
         mid_channel = min(512, in_channels[-1])
         for idx, in_channel in enumerate(in_channels):
             abfs.append(
-                ABF(
+                ABF_later_res_former(
                     in_channel,
                     mid_channel,
                     out_channels[idx],
@@ -103,50 +103,9 @@ class ReviewKD(Distiller):
         return logits_student, losses_dict
 
 
-class ABF(nn.Module):
-    def __init__(self, in_channel, mid_channel, out_channel, fuse):
-        super(ABF, self).__init__()
-        self.conv1 = nn.Sequential(
-            #对student的l+1级特征进行维度转换
-            nn.Conv2d(in_channel, mid_channel, kernel_size=1, bias=False),
-            nn.BatchNorm2d(mid_channel),
-        )
-        self.conv2 = nn.Sequential(
-            nn.Conv2d(mid_channel, out_channel, kernel_size=3, stride=1, padding=1, bias=False),
-            nn.BatchNorm2d(out_channel),
-        )
-        if fuse:
-            #特征融合，两级特征拼接+卷积
-            self.att_conv = nn.Sequential( 
-                nn.Conv2d(mid_channel * 2, 2, kernel_size=1),
-                nn.Sigmoid(),
-            )
-        else:
-            self.att_conv = None
-        nn.init.kaiming_uniform_(self.conv1[0].weight, a=1)  # pyre-ignore
-        nn.init.kaiming_uniform_(self.conv2[0].weight, a=1)  # pyre-ignore
-
-    def forward(self, x, y=None, shape=None, out_shape=None):
-        n, _, h, w = x.shape
-        # transform student features
-        x = self.conv1(x)
-        if self.att_conv is not None:
-            # upsample residual features
-            y = F.interpolate(y, (shape, shape), mode="nearest")
-            # fusion
-            z = torch.cat([x, y], dim=1)
-            z = self.att_conv(z)
-            x = x * z[:, 0].view(n, 1, h, w) + y * z[:, 1].view(n, 1, h, w) 
-        # output
-        if x.shape[-1] != out_shape:
-            x = F.interpolate(x, (out_shape, out_shape), mode="nearest")
-        y = self.conv2(x)
-        return y, x
-
-
 class ABF_later_res_former(nn.Module):
     def __init__(self, in_channel, mid_channel, out_channel, fuse):
-        super(ABF, self).__init__()
+        super(ABF_later_res_former, self).__init__()
         self.conv1 = nn.Sequential(
             #对student的l+1级特征进行维度转换
             nn.Conv2d(in_channel, mid_channel, kernel_size=1, bias=False),
@@ -171,7 +130,7 @@ class ABF_later_res_former(nn.Module):
         n, _, h, w = x.shape
         # transform student features
         x = self.conv1(x)  #这里添加一个res的相加，把后一个stage的feature在interpolate之后加到最后的结果上去，看看能不能提高特征融合中的靠后的特征的影响（实验了就是）
-        mid_x = x #获取中间特征
+        x_next_stage = x
         if self.att_conv is not None:
             # upsample residual features
             y = F.interpolate(y, (shape, shape), mode="nearest")
@@ -182,6 +141,8 @@ class ABF_later_res_former(nn.Module):
         # output
         if x.shape[-1] != out_shape:
             x = F.interpolate(x, (out_shape, out_shape), mode="nearest")
-        x = x + mid_x    #实现靠后特征的残差相加，是否能够实现平衡（？）实验
+        if x_next_stage.shape[-1] != out_shape:
+            x_next_stage = F.interpolate(x_next_stage, (out_shape, out_shape), mode="nearest")
+        x = x + x_next_stage    #实现靠后特征的残差相加，是否能够实现平衡（？）实验
         y = self.conv2(x)
         return y, x
