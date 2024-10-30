@@ -1,12 +1,12 @@
 EXPERIMENT:
   NAME: ""
   TAG: "dkd,res34,res18"
-  PROJECT: "imagenet_baselines" 
+  PROJECT: "imagenet_baselines"
 DATASET:
-  TYPE: "imagenet"
-  NUM_WORKERS: 32
+  TYPE: "tiny_imagenet"
+  NUM_WORKERS: 20
   TEST:
-    BATCH_SIZE: 128
+    BATCH_SIZE: 64
 DISTILLER:
   TYPE: "DKD"
   TEACHER: "ResNet34"
@@ -26,5 +26,5 @@ LOG:
 DKD:
   CE_WEIGHT: 1.0
   BETA: 0.5
-  T: 1.0
+  T: 4.0
   WARMUP: 1

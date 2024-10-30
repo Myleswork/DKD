@@ -124,3 +124,5 @@ wandb/
 
 # download ckpts
 download_ckpts/
+
+.vscode/
