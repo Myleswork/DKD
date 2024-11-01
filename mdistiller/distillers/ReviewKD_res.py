@@ -129,8 +129,7 @@ class ABF_later_res_former(nn.Module):
     def forward(self, x, y=None, shape=None, out_shape=None):
         n, _, h, w = x.shape
         # transform student features
-        x = self.conv1(x)  #这里添加一个res的相加，把后一个stage的feature在interpolate之后加到最后的结果上去，看看能不能提高特征融合中的靠后的特征的影响（实验了就是）
-        x_next_stage = x
+        x = self.conv1(x) 
         if self.att_conv is not None:
             # upsample residual features
             y = F.interpolate(y, (shape, shape), mode="nearest")
@@ -143,6 +142,5 @@ class ABF_later_res_former(nn.Module):
             x = F.interpolate(x, (out_shape, out_shape), mode="nearest")
         if x_next_stage.shape[-1] != out_shape:
             x_next_stage = F.interpolate(x_next_stage, (out_shape, out_shape), mode="nearest")
-        x = x + x_next_stage    #实现靠后特征的残差相加，是否能够实现平衡（？）实验
-        y = self.conv2(x)
+        y = self.conv2(x)  #暂存作为next_stage
         return y, x
