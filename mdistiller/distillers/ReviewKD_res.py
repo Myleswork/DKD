@@ -129,7 +129,8 @@ class ABF_later_res_former(nn.Module):
     def forward(self, x, y=None, shape=None, out_shape=None):
         n, _, h, w = x.shape
         # transform student features
-        x = self.conv1(x) 
+        x = self.conv1(x)
+        y_res = y
         if self.att_conv is not None:
             # upsample residual features
             y = F.interpolate(y, (shape, shape), mode="nearest")
@@ -140,7 +141,8 @@ class ABF_later_res_former(nn.Module):
         # output
         if x.shape[-1] != out_shape:
             x = F.interpolate(x, (out_shape, out_shape), mode="nearest")
-        if x_next_stage.shape[-1] != out_shape:
-            x_next_stage = F.interpolate(x_next_stage, (out_shape, out_shape), mode="nearest")
+        if y_res != None:
+            y_res = F.interpolate(y_res, (out_shape, out_shape), mode="nearest")
+            x = x + y_res
         y = self.conv2(x)  #暂存作为next_stage
         return y, x
