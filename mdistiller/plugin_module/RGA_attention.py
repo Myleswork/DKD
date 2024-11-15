@@ -152,9 +152,9 @@ class RGA_Module(nn.Module):
 
             return out
 
-# if __name__ == '__main__':
-#     block = RGA_Module(in_channel=3, in_spatial=32*32) # in_spatial应是h*w
-#     input = torch.rand(32, 3, 32, 32)
-#     output = block(input)
-#     print(input.size())
-#     print(output.size())
+if __name__ == '__main__':
+    block = RGA_Module(in_channel=3, in_spatial=32*32) # in_spatial应是h*w
+    input = torch.rand(32, 3, 32, 32)
+    output = block(input)
+    print(input.size())
+    print(output.size())

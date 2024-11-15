@@ -6,6 +6,7 @@ import math
 import pdb
 
 from ._base import Distiller
+from ..plugin_module.RGA_attention import RGA_Module
 
 
 def hcl_loss(fstudent, fteacher):
@@ -115,6 +116,7 @@ class ABF_later_res_former(nn.Module):
             nn.Conv2d(mid_channel, out_channel, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(out_channel),
         )
+
         if fuse:
             #特征融合，两级特征拼接+卷积
             self.att_conv = nn.Sequential( 
@@ -127,22 +129,30 @@ class ABF_later_res_former(nn.Module):
         nn.init.kaiming_uniform_(self.conv2[0].weight, a=1)  # pyre-ignore
 
     def forward(self, x, y=None, shape=None, out_shape=None):
-        n, _, h, w = x.shape
+        n, c, h, w = x.shape
         # transform student features
         x = self.conv1(x)
-        y_res = y
+        # y_res = y
         if self.att_conv is not None:
             # upsample residual features
             y = F.interpolate(y, (shape, shape), mode="nearest")
             # fusion
             z = torch.cat([x, y], dim=1)
+            RGA = RGA_Module(in_channel=c*2, in_spatial=shape*shape).cuda()
+            print("-------------------------------------------------------------z.shape_former-----------------------------------------------------")
+            print(z.shape)
+            print("--------------------------------------------------------------------------------------------------------------------------------")
+            z = RGA(z)
+            print("-------------------------------------------------------------z.shape_latter-----------------------------------------------------")
+            print(z.shape)
+            print("--------------------------------------------------------------------------------------------------------------------------------")
             z = self.att_conv(z)
             x = x * z[:, 0].view(n, 1, h, w) + y * z[:, 1].view(n, 1, h, w) #已经是最后的输出，两边各作加权，然后详解（能不能融合其他的attention机制?）
         # output
         if x.shape[-1] != out_shape:
             x = F.interpolate(x, (out_shape, out_shape), mode="nearest")
-        if y_res != None:
-            y_res = F.interpolate(y_res, (out_shape, out_shape), mode="nearest")
-            x = x + y_res
+        # if y_res != None:
+        #     y_res = F.interpolate(y_res, (out_shape, out_shape), mode="nearest")
+        #     x = x + y_res
         y = self.conv2(x)  #暂存作为next_stage
         return y, x

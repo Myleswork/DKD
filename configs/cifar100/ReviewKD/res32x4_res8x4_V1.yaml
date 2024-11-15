@@ -1,9 +1,9 @@
 EXPERIMENT:
   NAME: ""
-  TAG: "reviewkd_V1,res32x4,res8x4"
+  TAG: "reviewkd_RGA,res32x4,res8x4"
   PROJECT: "cifar100_baselines"
 DISTILLER:
-  TYPE: "REVIEWKD_V1"
+  TYPE: "REVIEWKD_RGA"
   TEACHER: "resnet32x4"
   STUDENT: "resnet8x4"
 REVIEWKD:
