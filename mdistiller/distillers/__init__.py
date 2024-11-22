@@ -14,7 +14,7 @@ from .ReviewKD import ReviewKD
 from .DKD import DKD
 
 from .ReviewKD_res import ReviewKD_v1
-from .ReviewKD_RGA import ReviewKD as ReviewKD_RGA
+from .ReviewKD_RGA import ReviewKD_RGA
 
 distiller_dict = {
     "NONE": Vanilla,

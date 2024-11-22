@@ -28,9 +28,9 @@ def hcl_loss(fstudent, fteacher):
     return loss_all
 
 
-class ReviewKD(Distiller):
+class ReviewKD_RGA(Distiller):
     def __init__(self, student, teacher, cfg):
-        super(ReviewKD, self).__init__(student, teacher)
+        super(ReviewKD_RGA, self).__init__(student, teacher)
         self.shapes = cfg.REVIEWKD.SHAPES
         self.out_shapes = cfg.REVIEWKD.OUT_SHAPES
         in_channels = cfg.REVIEWKD.IN_CHANNELS
@@ -40,6 +40,7 @@ class ReviewKD(Distiller):
         self.warmup_epochs = cfg.REVIEWKD.WARMUP_EPOCHS
         self.stu_preact = cfg.REVIEWKD.STU_PREACT
         self.max_mid_channel = cfg.REVIEWKD.MAX_MID_CHANNEL
+        self.feature_size = cfg.REVIEWKD.FEATURE_SIZE
 
         abfs = nn.ModuleList()
         mid_channel = min(512, in_channels[-1])
@@ -50,7 +51,7 @@ class ReviewKD(Distiller):
                     mid_channel,
                     out_channels[idx],
                     idx < len(in_channels) - 1,
-                    pow(self.shapes[idx], 2),  #RGA_shape
+                    pow(self.feature_size[idx], 2),  #RGA_shape
                 )
             )
         self.abfs = abfs[::-1]
@@ -129,7 +130,7 @@ class ABF_RGA(nn.Module):
         nn.init.kaiming_uniform_(self.conv2[0].weight, a=1)  # pyre-ignore
 
         #RGA_module
-        self.in_channel = in_channel * 2
+        self.in_channel = mid_channel * 2
         self.in_spatial = in_spatial
 
         self.use_spatial = use_spatial
@@ -234,16 +235,17 @@ class ABF_RGA(nn.Module):
             y = F.interpolate(y, (shape, shape), mode="nearest")
             # fusion
             z = torch.cat([x, y], dim=1)
+            z_n, z_c, z_h, z_w = z.shape
             if self.use_spatial:
                 # spatial attention
                 theta_xs = self.theta_spatial(z)
                 phi_xs = self.phi_spatial(z)
-                theta_xs = theta_xs.view(n, self.inter_channel, -1)
+                theta_xs = theta_xs.view(z_n, self.inter_channel, -1)
                 theta_xs = theta_xs.permute(0, 2, 1)
-                phi_xs = phi_xs.view(n, self.inter_channel, -1)
+                phi_xs = phi_xs.view(z_n, self.inter_channel, -1)
                 Gs = torch.matmul(theta_xs, phi_xs)
-                Gs_in = Gs.permute(0, 2, 1).view(n, h * w, h, w)
-                Gs_out = Gs.view(n, h * w, h, w)
+                Gs_in = Gs.permute(0, 2, 1).view(z_n, z_h * z_w, z_h, z_w)
+                Gs_out = Gs.view(z_n, z_h * z_w, z_h, z_w)
                 Gs_joint = torch.cat((Gs_in, Gs_out), 1)
                 Gs_joint = self.gg_spatial(Gs_joint)
 
@@ -259,7 +261,7 @@ class ABF_RGA(nn.Module):
 
             if self.use_channel:
                 # channel attention
-                xc = z.view(n, c, -1).permute(0, 2, 1).unsqueeze(-1)
+                xc = z.view(z_n, z_c, -1).permute(0, 2, 1).unsqueeze(-1)
                 theta_xc = self.theta_channel(xc).squeeze(-1).permute(0, 2, 1)
                 phi_xc = self.phi_channel(xc).squeeze(-1)
                 Gc = torch.matmul(theta_xc, phi_xc)

@@ -39,6 +39,8 @@ def main(cfg, resume, opts):
     # init dataloader & models
     train_loader, val_loader, num_data, num_classes = get_dataset(cfg)
 
+
+
     # vanilla
     if cfg.DISTILLER.TYPE == "NONE":
         if cfg.DATASET.TYPE == "imagenet":
