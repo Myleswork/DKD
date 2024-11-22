@@ -5,6 +5,7 @@ import numpy as np
 import sys
 import time
 from tqdm import tqdm
+import math
 
 
 class AverageMeter(object):
@@ -77,6 +78,16 @@ def adjust_learning_rate(epoch, cfg, optimizer):
             param_group["lr"] = new_lr
         return new_lr
     return cfg.SOLVER.LR
+
+def adjsut_learning_rate_cos(epoch, cfg, optimizer):
+    """Adjust learning rate using cosine annealing."""
+    T_max = cfg.SOLVER.EPOCHS  # 总的epoch数
+    eta_min = cfg.SOLVER.LR_MIN  # 最低学习率
+    lr = eta_min + (cfg.SOLVER.LR - eta_min) * (1 + math.cos(math.pi * epoch / T_max)) / 2
+
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+    return lr
 
 
 def accuracy(output, target, topk=(1,)):

@@ -12,6 +12,7 @@ from .utils import (
     accuracy,
     validate,
     adjust_learning_rate,
+    adjsut_learning_rate_cos,
     save_checkpoint,
     load_checkpoint,
     log_msg,
@@ -90,7 +91,9 @@ class BaseTrainer(object):
             writer.write("best_acc\t" + "{:.2f}".format(float(self.best_acc)))
 
     def train_epoch(self, epoch):
-        lr = adjust_learning_rate(epoch, self.cfg, self.optimizer)
+        # lr = adjust_learning_rate(epoch, self.cfg, self.optimizer)
+        lr = adjsut_learning_rate_cos(epoch, self.cfg, self.optimizer)
+        
         train_meters = {
             "training_time": AverageMeter(),
             "data_time": AverageMeter(),
