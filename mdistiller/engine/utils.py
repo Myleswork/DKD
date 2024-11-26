@@ -81,8 +81,8 @@ def adjust_learning_rate(epoch, cfg, optimizer):
 
 def adjsut_learning_rate_cos(epoch, cfg, optimizer):
     """Adjust learning rate using cosine annealing."""
-    T_max = cfg.SOLVER.EPOCHS  # 总的epoch数
-    eta_min = cfg.SOLVER.LR_MIN  # 最低学习率
+    T_max = cfg.SOLVER.EPOCHS  # 鏈�澶poch
+    eta_min = cfg.SOLVER.LR_MIN  # 鏈�灏忓涔犵巼
     lr = eta_min + (cfg.SOLVER.LR - eta_min) * (1 + math.cos(math.pi * epoch / T_max)) / 2
 
     for param_group in optimizer.param_groups:
