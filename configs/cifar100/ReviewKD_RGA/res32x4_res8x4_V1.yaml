@@ -1,6 +1,6 @@
 EXPERIMENT:
   NAME: ""
-  TAG: "reviewkd_RGA,res32x4,res8x4,cos_lr"
+  TAG: "reviewkd_RGA,res32x4,res8x4"
   PROJECT: "cifar100_baselines"
 DISTILLER:
   TYPE: "REVIEWKD_RGA"
@@ -14,9 +14,9 @@ SOLVER:
   # EPOCHS: 240
   EPOCHS: 320
   LR: 0.05
-  # LR_DECAY_STAGES: [150, 180, 210]
-  # LR_DECAY_RATE: 0.1
-  # WEIGHT_DECAY: 0.0005
+  LR_DECAY_STAGES: [150, 180, 210, 280]
+  LR_DECAY_RATE: 0.1
+  WEIGHT_DECAY: 0.0005
   MOMENTUM: 0.9
   TYPE: "SGD"
 
