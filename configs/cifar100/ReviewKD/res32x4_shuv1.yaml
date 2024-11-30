@@ -1,6 +1,6 @@
 EXPERIMENT:
   NAME: ""
-  TAG: "reviewkd,res32x4,shuv1"
+  TAG: "reviewkd,res32x4,shuv1,titanxp"
   PROJECT: "cifar100_baselines"
 DISTILLER:
   TYPE: "REVIEWKD"
@@ -12,10 +12,10 @@ REVIEWKD:
   IN_CHANNELS: [240, 480, 960, 960]
   SHAPES: [1, 4, 8, 16]
 SOLVER:
-  BATCH_SIZE: 256
-  EPOCHS: 240
-  LR: 0.01
-  LR_DECAY_STAGES: [150, 180, 210]
+  BATCH_SIZE: 128
+  EPOCHS: 280
+  LR: 0.05
+  LR_DECAY_STAGES: [150, 180, 210, 250]
   LR_DECAY_RATE: 0.1
   WEIGHT_DECAY: 0.0005
   MOMENTUM: 0.9

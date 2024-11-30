@@ -1,6 +1,6 @@
 EXPERIMENT:
   NAME: ""
-  TAG: "reviewkd_RGA,res32x4,res8x4"
+  TAG: "reviewkd_RGA,res32x4,res8x4,titanxp"
   PROJECT: "cifar100_baselines"
 DISTILLER:
   TYPE: "REVIEWKD_RGA"
