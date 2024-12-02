@@ -177,13 +177,13 @@ class ABF_RGA(nn.Module):
 
         # Networks for learning attention weights
         if self.use_spatial:
-            num_channel_s = 1 + self.inter_spatial
+            num_channel_s = max(1 + self.inter_spatial, 1)  #确保至少为1
             self.W_spatial = nn.Sequential(
-                nn.Conv2d(in_channels=num_channel_s, out_channels=num_channel_s // down_ratio,
+                nn.Conv2d(in_channels=num_channel_s, out_channels=max(num_channel_s // down_ratio, 1), #防止为0
                           kernel_size=1, stride=1, padding=0, bias=False),
-                nn.BatchNorm2d(num_channel_s // down_ratio),
+                nn.BatchNorm2d(max(num_channel_s // down_ratio, 1)), #同样防止为0
                 nn.ReLU(),
-                nn.Conv2d(in_channels=num_channel_s // down_ratio, out_channels=1,
+                nn.Conv2d(in_channels=max(num_channel_s // down_ratio, 1), out_channels=1,
                           kernel_size=1, stride=1, padding=0, bias=False),
                 nn.BatchNorm2d(1)
             )
