@@ -1,7 +1,7 @@
 EXPERIMENT:
   NAME: ""
   TAG: "reviewkd_RGA,res32x4,res8x4,titanxp"
-  PROJECT: "cifar100_baselines"
+  PROJECT: "cifar100_RGA"
 DISTILLER:
   TYPE: "REVIEWKD_RGA"
   TEACHER: "resnet32x4"
