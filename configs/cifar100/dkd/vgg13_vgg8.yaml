@@ -17,3 +17,5 @@ SOLVER:
   TYPE: "SGD"
 DKD:
   BETA: 6.0
+LOG:
+  WANDB: False

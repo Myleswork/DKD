@@ -1,6 +1,6 @@
 EXPERIMENT:
   NAME: ""
-  TAG: "REVIEWKD_RGA,vgg13,vgg8"
+  TAG: "reviewkd,vgg13,vgg8"
   PROJECT: "reviewkd_cifar100_baselines"
 DISTILLER:
   TYPE: "REVIEWKD"
@@ -10,6 +10,7 @@ REVIEWKD:
   REVIEWKD_WEIGHT: 5.0
   IN_CHANNELS: [128,256,512,512,512]
   OUT_CHANNELS: [128,256,512,512,512]
+  # SHAPES: [1,4,4,8,16]
   SHAPES: [1,4,4,8,16]
 SOLVER:
   BATCH_SIZE: 128
@@ -20,3 +21,7 @@ SOLVER:
   WEIGHT_DECAY: 0.0005
   MOMENTUM: 0.9
   TYPE: "SGD"
+LOG:
+  WANDB: False
+
+# RuntimeError: The size of tensor a (32) must match the size of tensor b (16) at non-singleton dimension 3
