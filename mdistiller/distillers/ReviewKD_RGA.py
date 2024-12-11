@@ -107,7 +107,7 @@ class ReviewKD_RGA(Distiller):
 
 class ABF_RGA(nn.Module):
     def __init__(self, in_channel, mid_channel, out_channel, fuse,
-                 in_spatial, use_spatial=True, use_channel=True, cha_ratio=8, spa_ratio=8, down_ratio=8):
+                 in_spatial, use_spatial=False, use_channel=True, cha_ratio=8, spa_ratio=8, down_ratio=8):
         super(ABF_RGA, self).__init__()
         self.conv1 = nn.Sequential(
             #对student的l+1级特征进行维度转换
@@ -177,6 +177,7 @@ class ABF_RGA(nn.Module):
 
         # Networks for learning attention weights
         if self.use_spatial:
+            # num_channel_s = max(1 + self.inter_spatial, 1)  #确保至少为1
             num_channel_s = max(1 + self.inter_spatial, 1)  #确保至少为1
             self.W_spatial = nn.Sequential(
                 nn.Conv2d(in_channels=num_channel_s, out_channels=max(num_channel_s // down_ratio, 1), #防止为0
