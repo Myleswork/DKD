@@ -1,3 +1,6 @@
+# 1211
+新idea，解耦注意力并稀疏化
+
 # env 
 
 - conda create -n env_name python=3.8.20
