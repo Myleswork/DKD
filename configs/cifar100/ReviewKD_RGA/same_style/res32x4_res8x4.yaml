@@ -4,7 +4,7 @@ EXPERIMENT:
   TAG: "reviewkd_RGA,res32x4,res8x4"
   PROJECT: "3090ti_1_cifar100_128_005"
 DISTILLER:
-  TYPE: "REVIEWKD_RGA"
+  TYPE: "REVIEWKD_RGA_decoupled"
   TEACHER: "resnet32x4"
   STUDENT: "resnet8x4"
 REVIEWKD:
@@ -20,4 +20,6 @@ SOLVER:
   WEIGHT_DECAY: 0.0005
   MOMENTUM: 0.9
   TYPE: "SGD"
+LOG:
+  WANDB: False
 

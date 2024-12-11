@@ -13,7 +13,7 @@ from .VID import VID
 from .ReviewKD import ReviewKD
 from .DKD import DKD
 
-from .ReviewKD_res import ReviewKD_v1
+from .ReviewKD_RGA_decoupled import ReviewKD_RGA_decoupled
 from .ReviewKD_RGA import ReviewKD_RGA
 
 distiller_dict = {
@@ -31,6 +31,6 @@ distiller_dict = {
     "VID": VID,
     "REVIEWKD": ReviewKD,
     "DKD": DKD,
-    "REVIEWKD_V1": ReviewKD_v1,
+    "ReviewKD_RGA_decoupled": ReviewKD_RGA_decoupled,
     "REVIEWKD_RGA": ReviewKD_RGA
 }
