@@ -255,6 +255,8 @@ class ABF_RGA(nn.Module):
             z = torch.cat([x, y], dim=1)
             z_spatial = z  #参与spatial_attention的提取
             z_channel = z  #参与channel_attention的提取
+            spatial_att_feature = []
+            channel_att_feature = []
             z_n, z_c, z_h, z_w = z.shape
             if self.use_spatial:
                 # spatial attention

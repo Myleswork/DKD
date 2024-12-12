@@ -41,6 +41,9 @@ class ReviewKD_RGA(Distiller):
         self.stu_preact = cfg.REVIEWKD.STU_PREACT
         self.max_mid_channel = cfg.REVIEWKD.MAX_MID_CHANNEL
         self.feature_size = cfg.REVIEWKD.FEATURE_SIZE
+        #
+        self.use_spatial = cfg.RGA.SPATIAL
+        self.use_channel = cfg.RGA.CHANNEL
 
         abfs = nn.ModuleList()
         mid_channel = min(512, in_channels[-1])
@@ -52,6 +55,8 @@ class ReviewKD_RGA(Distiller):
                     out_channels[idx],
                     idx < len(in_channels) - 1,
                     pow(self.feature_size[idx], 2),  #RGA_shape
+                    use_spatial=self.use_spatial,    #whether use spatial attention
+                    use_channel=self.use_channel,    #whether use channel attention
                 )
             )
         self.abfs = abfs[::-1]
