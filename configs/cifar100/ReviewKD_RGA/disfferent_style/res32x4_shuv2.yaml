@@ -2,7 +2,7 @@
 EXPERIMENT:
   NAME: ""
   TAG: "reviewkd,res32x4,shuv2"
-  PROJECT: "cifar100_RGA"
+  PROJECT: ""
 DISTILLER:
   TYPE: "REVIEWKD_RGA"
   TEACHER: "resnet32x4"

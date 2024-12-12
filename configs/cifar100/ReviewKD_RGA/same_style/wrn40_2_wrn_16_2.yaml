@@ -1,10 +1,10 @@
 #ok
 EXPERIMENT:
   NAME: ""
-  TAG: "reviewkd,wrn_40_2,wrn_16_2"
-  PROJECT: "reviewkd_cifar100_baselines"
+  TAG: "reviewkd_RGA,wrn_40_2,wrn_16_2"
+  PROJECT: ""
 DISTILLER:
-  TYPE: "REVIEWKD"
+  TYPE: "REVIEWKD_RGA"
   TEACHER: "wrn_40_2"
   STUDENT: "wrn_16_2"
 REVIEWKD:

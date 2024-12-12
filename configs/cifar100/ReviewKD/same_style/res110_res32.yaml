@@ -1,7 +1,7 @@
 EXPERIMENT:
   NAME: ""
   TAG: "reviewkd,res110,res32"
-  PROJECT: "reviewkd_cifar100_baselines"
+  PROJECT: ""
 DISTILLER:
   TYPE: "REVIEWKD"
   TEACHER: "resnet110"

@@ -31,6 +31,6 @@ distiller_dict = {
     "VID": VID,
     "REVIEWKD": ReviewKD,
     "DKD": DKD,
-    "ReviewKD_RGA_decoupled": ReviewKD_RGA_decoupled,
+    "REVIEWKD_RGA_decoupled": ReviewKD_RGA_decoupled,
     "REVIEWKD_RGA": ReviewKD_RGA
 }

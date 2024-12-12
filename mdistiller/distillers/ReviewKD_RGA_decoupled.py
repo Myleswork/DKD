@@ -41,6 +41,9 @@ class ReviewKD_RGA_decoupled(Distiller):
         self.stu_preact = cfg.REVIEWKD.STU_PREACT
         self.max_mid_channel = cfg.REVIEWKD.MAX_MID_CHANNEL
         self.feature_size = cfg.REVIEWKD.FEATURE_SIZE
+        #
+        self.use_spatial = cfg.RGA.SPATIAL
+        self.use_channel = cfg.RGA.CHANNEL
 
         abfs = nn.ModuleList()
         mid_channel = min(512, in_channels[-1])
@@ -52,6 +55,8 @@ class ReviewKD_RGA_decoupled(Distiller):
                     out_channels[idx],
                     idx < len(in_channels) - 1,
                     pow(self.feature_size[idx], 2),  #RGA_shape
+                    use_spatial=self.use_spatial,
+                    use_channel=self.use_channel,
                 )
             )
         self.abfs = abfs[::-1]
@@ -91,7 +96,7 @@ class ReviewKD_RGA_decoupled(Distiller):
         for features, abf, shape, out_shape in zip(
             x[1:], self.abfs[1:], self.shapes[1:], self.out_shapes[1:]
         ):
-            out_features, res_features, spatial_out, channel_out = abf(features, res_features, shape, out_shape)
+            _, res_features, spatial_out, channel_out = abf(features, res_features, shape, out_shape)
             spatial_result.insert(0, spatial_out)
             channel_result.insert(0, channel_out)
         features_teacher = features_teacher["preact_feats"][1:] + [
@@ -294,18 +299,24 @@ class ABF_RGA(nn.Module):
                 z_channel = self.att_conv(z_channel)
                 channel_att_feature = x * z_channel[:, 0].view(n, 1, h, w) + y * z_channel[:, 1].view(n, 1, h, w)
 
-            global_att_feature = spatial_att_feature + channel_att_feature
-            if global_att_feature.shape[-1] != out_shape:
-                global_att_feature = F.interpolate(global_att_feature, (out_shape, out_shape), mode="nearest")
-            y = self.conv2(global_att_feature)
+            if spatial_att_feature.shape[-1] != out_shape:
+                spatial_att_feature = F.interpolate(spatial_att_feature, (out_shape, out_shape), mode="nearest")
+            if channel_att_feature.shape[-1] != out_shape:
+                channel_att_feature = F.interpolate(channel_att_feature, (out_shape, out_shape), mode="nearest")
+            
+            global_att_feature = spatial_att_feature + channel_att_feature  #这里看看 直接加 和 先concat再1x1conv 哪个效果好
+            # if global_att_feature.shape[-1] != out_shape:
+            #     global_att_feature = F.interpolate(global_att_feature, (out_shape, out_shape), mode="nearest")
+            spatial_att_feature = self.conv2(spatial_att_feature)
+            channel_att_feature = self.conv2(channel_att_feature)
             #if fusion, return below
-            return y, x, spatial_att_feature, channel_att_feature
+            return y, global_att_feature, spatial_att_feature, channel_att_feature
 
         if x.shape[-1] != out_shape:
             x = F.interpolate(x, (out_shape, out_shape), mode="nearest")
         y = self.conv2(x)
 
-        #y是要传入上一级，且和teacher输出作loss的
+        #x传入上一级，y和teacher进行计算
         #那么我现在改了之后，y还是y，但是作loss的就变成spatial_att_feature和channel_att_feature了，这两个也要传出来
         #虽然y要传出来，但不参与loss的计算
         # if not fusion, return below

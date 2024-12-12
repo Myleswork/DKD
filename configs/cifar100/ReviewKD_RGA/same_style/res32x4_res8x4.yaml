@@ -2,9 +2,9 @@
 EXPERIMENT:
   NAME: ""
   TAG: "reviewkd_RGA,res32x4,res8x4"
-  PROJECT: "3090ti_1_cifar100_128_005"
+  PROJECT: ""
 DISTILLER:
-  TYPE: "REVIEWKD_RGA_decoupled"
+  TYPE: "REVIEWKD_RGA"
   TEACHER: "resnet32x4"
   STUDENT: "resnet8x4"
 REVIEWKD:
@@ -20,6 +20,4 @@ SOLVER:
   WEIGHT_DECAY: 0.0005
   MOMENTUM: 0.9
   TYPE: "SGD"
-LOG:
-  WANDB: False
 

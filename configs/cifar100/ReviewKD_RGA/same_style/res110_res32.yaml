@@ -1,8 +1,8 @@
 #ok
 EXPERIMENT:
   NAME: ""
-  TAG: "reviewkd,res110,res32,titanxp"
-  PROJECT: "cifar100_RGA"
+  TAG: "reviewkd_RGA,res110,res32"
+  PROJECT: ""
 DISTILLER:
   TYPE: "REVIEWKD_RGA"
   TEACHER: "resnet110"

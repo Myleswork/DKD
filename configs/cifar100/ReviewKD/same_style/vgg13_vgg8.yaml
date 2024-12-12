@@ -1,7 +1,7 @@
 EXPERIMENT:
   NAME: ""
-  TAG: "reviewkd,vgg13,vgg8,TITANxp"
-  PROJECT: "cifar100_baselines"
+  TAG: "reviewkd,vgg13,vgg8"
+  PROJECT: ""
 DISTILLER:
   TYPE: "REVIEWKD"
   TEACHER: "vgg13"
