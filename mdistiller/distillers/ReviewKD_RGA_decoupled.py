@@ -136,6 +136,10 @@ class ABF_RGA(nn.Module):
             nn.Conv2d(mid_channel, out_channel, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(out_channel),
         )
+        self.sc_att_conv = nn.Sequential(
+            nn.Conv2d(mid_channel*2, mid_channel, kernel_size=1),
+            nn.BatchNorm2d(mid_channel)
+        )
         if fuse:
             #特征融合，两级特征拼接+卷积
             self.att_conv = nn.Sequential( 
@@ -244,6 +248,8 @@ class ABF_RGA(nn.Module):
                 nn.BatchNorm2d(self.inter_spatial),
                 nn.ReLU()
             )
+
+
     def forward(self, x, y=None, shape=None, out_shape=None):
         n, c, h, w = x.shape
         # transform student features
@@ -306,7 +312,9 @@ class ABF_RGA(nn.Module):
             if channel_att_feature.shape[-1] != out_shape:
                 channel_att_feature = F.interpolate(channel_att_feature, (out_shape, out_shape), mode="nearest")
             
-            global_att_feature = spatial_att_feature + channel_att_feature  #这里看看 直接加 和 先concat再1x1conv 哪个效果好
+            # global_att_feature = spatial_att_feature + channel_att_feature  #这里看看 直接加 和 先concat再1x1conv 哪个效果好
+            global_att_feature = torch.cat((spatial_att_feature, channel_att_feature), dim=1)
+            global_att_feature = self.sc_att_conv(global_att_feature)
             # if global_att_feature.shape[-1] != out_shape:
             #     global_att_feature = F.interpolate(global_att_feature, (out_shape, out_shape), mode="nearest")
             spatial_att_feature = self.conv2(spatial_att_feature)

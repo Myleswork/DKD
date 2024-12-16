@@ -2,6 +2,7 @@
 EXPERIMENT:
   NAME: ""
   TAG: "REVIEWKD_RGA_decoupled,res32x4,res8x4"
+  GROUP: 1
   PROJECT: ""
 DISTILLER:
   TYPE: "REVIEWKD_RGA_decoupled"
