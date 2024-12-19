@@ -24,13 +24,12 @@ def main(cfg, resume, opts):
         addtional_tags = ["{}:{}".format(k, v) for k, v in zip(opts[::2], opts[1::2])]
         tags += addtional_tags
         experiment_name += ",".join(addtional_tags)
-    group = cfg.EXPERIMENT.GROUP
     experiment_name = os.path.join(cfg.EXPERIMENT.PROJECT, experiment_name)
     if cfg.LOG.WANDB:
         try:
             import wandb
 
-            wandb.init(project=cfg.EXPERIMENT.PROJECT, name=experiment_name, tags=tags, group=group) #这里可以加个groups，这样就能group了
+            wandb.init(project=cfg.EXPERIMENT.PROJECT, name=experiment_name, tags=tags) #这里可以加个groups，这样就能group了
         except:
             print(log_msg("Failed to use WANDB", "INFO"))
             cfg.LOG.WANDB = False

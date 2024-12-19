@@ -8,7 +8,6 @@ def show_cfg(cfg):
     dump_cfg.DATASET = cfg.DATASET
     dump_cfg.DISTILLER = cfg.DISTILLER
     dump_cfg.SOLVER = cfg.SOLVER
-    dump_cfg.LOG = cfg.LOG
     if cfg.DISTILLER.TYPE in cfg:
         dump_cfg.update({cfg.DISTILLER.TYPE: cfg.get(cfg.DISTILLER.TYPE)})
     print(log_msg("CONFIG:\n{}".format(dump_cfg.dump()), "INFO"))
@@ -21,7 +20,6 @@ CFG.EXPERIMENT = CN()
 CFG.EXPERIMENT.PROJECT = "distill"
 CFG.EXPERIMENT.NAME = ""
 CFG.EXPERIMENT.TAG = "default"
-CFG.EXPERIMENT.GROUP = 0
 
 # Dataset
 CFG.DATASET = CN()
