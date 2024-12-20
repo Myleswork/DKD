@@ -45,6 +45,9 @@ class ReviewKD_RGA_decoupled(Distiller):
         self.use_spatial = cfg.RGA.SPATIAL
         self.use_channel = cfg.RGA.CHANNEL
 
+        self.alpha = cfg.RGA.SPATIAL_WEIGHT
+        self.beta = cfg.RGA.CHANNEL_WEIGHT  #实验结果来看这个对性能的贡献要大一点
+
         abfs = nn.ModuleList()
         mid_channel = min(512, in_channels[-1])
         for idx, in_channel in enumerate(in_channels):
@@ -114,7 +117,7 @@ class ReviewKD_RGA_decoupled(Distiller):
         loss_reviewkd = (
             self.reviewkd_loss_weight
             * min(kwargs["epoch"] / self.warmup_epochs, 1.0)
-            * (hcl_loss(spatial_result, features_teacher) + hcl_loss(channel_result, features_teacher))  #loss_update
+            * (self.alpha * hcl_loss(spatial_result, features_teacher) + self.beta * hcl_loss(channel_result, features_teacher))  #loss_update
         )
         losses_dict = {
             "loss_ce": loss_ce,
