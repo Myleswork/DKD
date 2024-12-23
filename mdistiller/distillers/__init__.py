@@ -13,7 +13,7 @@ from .VID import VID
 from .ReviewKD import ReviewKD
 from .DKD import DKD
 
-from .ReviewKD_RGA_decoupled import ReviewKD_RGA_decoupled
+from .ReviewKD_RGA_decoupled_dev import ReviewKD_RGA_decoupled
 from .ReviewKD_RGA import ReviewKD_RGA
 
 distiller_dict = {

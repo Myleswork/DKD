@@ -114,11 +114,21 @@ class ReviewKD_RGA_decoupled(Distiller):
         # )
         # losses
         loss_ce = self.ce_loss_weight * F.cross_entropy(logits_student, target)
+
+        adaptive_weight = 0.5 * (1 + math.cos(math.pi * kwargs["epoch"] / self.warmup_epochs))
+        # loss_reviewkd = (
+        #     self.reviewkd_loss_weight
+        #     * min(kwargs["epoch"] / self.warmup_epochs, 1.0)
+        #     * (self.alpha * hcl_loss(spatial_result, features_teacher) + self.beta * hcl_loss(channel_result, features_teacher))  #loss_update
+        # )
+        
+        #****************************************************************************************************************************************
         loss_reviewkd = (
             self.reviewkd_loss_weight
-            * min(kwargs["epoch"] / self.warmup_epochs, 1.0)
+            * adaptive_weight
             * (self.alpha * hcl_loss(spatial_result, features_teacher) + self.beta * hcl_loss(channel_result, features_teacher))  #loss_update
         )
+        #****************************************************************************************************************************************
         losses_dict = {
             "loss_ce": loss_ce,
             "loss_kd": loss_reviewkd,
