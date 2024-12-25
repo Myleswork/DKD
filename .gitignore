@@ -126,3 +126,5 @@ wandb/
 download_ckpts/
 
 .vscode/
+
+*.sh

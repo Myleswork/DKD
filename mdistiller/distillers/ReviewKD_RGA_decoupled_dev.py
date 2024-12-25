@@ -8,11 +8,39 @@ import pdb
 from ._base import Distiller
 
 
+# def hcl_loss(fstudent, fteacher):
+#     loss_all = 0.0
+#     for fs, ft in zip(fstudent, fteacher):
+#         n, c, h, w = fs.shape
+#         loss = F.mse_loss(fs, ft, reduction="mean")
+#         cnt = 1.0
+#         tot = 1.0
+#         for l in [4, 2, 1]:
+#             if l >= h:
+#                 continue
+#             tmpfs = F.adaptive_avg_pool2d(fs, (l, l))
+#             tmpft = F.adaptive_avg_pool2d(ft, (l, l))
+#             cnt /= 2.0
+#             loss += F.mse_loss(tmpfs, tmpft, reduction="mean") * cnt
+#             tot += cnt
+#         loss = loss / tot
+#         loss_all = loss_all + loss
+#     return loss_all
+
+#按照chatgpt的说法
 def hcl_loss(fstudent, fteacher):
     loss_all = 0.0
+    temperature = 4.0
     for fs, ft in zip(fstudent, fteacher):
         n, c, h, w = fs.shape
-        loss = F.mse_loss(fs, ft, reduction="mean")
+        mse_loss = F.mse_loss(fs, ft, reduction="mean")
+        kl_loss = F.kl_div(
+            F.log_softmax(fs / temperature, dim=1),
+            F.softmax(ft / temperature, dim=1),
+            reduction="batchmean"
+        ) * (temperature ** 2)
+
+        pooling_loss = 0.0
         cnt = 1.0
         tot = 1.0
         for l in [4, 2, 1]:
@@ -20,10 +48,20 @@ def hcl_loss(fstudent, fteacher):
                 continue
             tmpfs = F.adaptive_avg_pool2d(fs, (l, l))
             tmpft = F.adaptive_avg_pool2d(ft, (l, l))
+            pooled_mse_loss = F.mse_loss(tmpfs, tmpft, reduction="mean")
+            pooled_kl_loss = F.kl_div(
+                F.log_softmax(tmpfs / temperature, dim=1),
+                F.softmax(tmpft / temperature, dim=1),
+                reduction="batchmean"
+            ) * (temperature ** 2)
+
+
+            pooling_loss += (0.5 * pooled_mse_loss + 0.5 * pooled_kl_loss) * cnt
             cnt /= 2.0
-            loss += F.mse_loss(tmpfs, tmpft, reduction="mean") * cnt
             tot += cnt
-        loss = loss / tot
+
+        pooling_loss = pooling_loss / tot
+        loss = 0.5 * mse_loss + 0.5 * kl_loss + pooling_loss
         loss_all = loss_all + loss
     return loss_all
 
@@ -113,7 +151,7 @@ class ReviewKD_RGA_decoupled(Distiller):
         #     * hcl_loss(results, features_teacher)
         # )
         # losses
-        loss_ce = self.ce_loss_weight * F.cross_entropy(logits_student, target)
+        loss_ce = self.ce_loss_weight * F.cross_entropy(logits_student, target)  #
 
         adaptive_weight = 0.5 * (1 + math.cos(math.pi * kwargs["epoch"] / self.warmup_epochs))
         # loss_reviewkd = (
