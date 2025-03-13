@@ -3,6 +3,7 @@ import numpy as np
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from PIL import Image
+from .autoaugment import CIFAR10Policy, Cutout
 
 
 def get_data_folder():
@@ -114,15 +115,24 @@ class CIFAR100InstanceSample(datasets.CIFAR100):
             return img, target, index, sample_idx
 
 
-def get_cifar100_train_transform():
+def get_cifar100_train_transform(auto_aug=False, cut_out=False):
     train_transform = transforms.Compose(
         [
             transforms.RandomCrop(32, padding=4),
             transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761)),
+            # transforms.ToTensor(),
+            # transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761)),
         ]
     )
+    if auto_aug:
+        train_transform.append(CIFAR10Policy())
+    
+    train_transform.append(transforms.ToTensor())
+
+    if cut_out:
+        train_transform.append(Cutout(n_holes=1, length=16))
+
+    train_transform.append(transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761)))
 
     return train_transform
 
@@ -136,9 +146,9 @@ def get_cifar100_test_transform():
     )
 
 
-def get_cifar100_dataloaders(batch_size, val_batch_size, num_workers):
+def get_cifar100_dataloaders(batch_size, val_batch_size, num_workers, auto_aug=False, cut_out=False):
     data_folder = get_data_folder()
-    train_transform = get_cifar100_train_transform()
+    train_transform = get_cifar100_train_transform(auto_aug, cut_out)
     test_transform = get_cifar100_test_transform()
     train_set = CIFAR100Instance(
         root=data_folder, download=True, train=True, transform=train_transform
